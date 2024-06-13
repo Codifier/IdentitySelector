@@ -1,0 +1,97 @@
+@import url('reset.css');
+@import url('global.css');
+
+body {
+  display: flex;
+  flex-direction: column;
+  padding: 1em 3em;
+  font-family: 'Noto Sans', 'Droid Sans', Arial, sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+h1, h2 {
+  margin: .5em 0;
+  font-weight: bold;
+}
+h1 {
+  font-size: 110%;
+}
+h2 {
+  font-size: 105%;
+}
+
+button {
+  cursor: pointer;
+}
+
+select,
+span.no-items {
+  display: block;
+  border: 1px solid #ccc;
+  background-color: #fff;
+}
+span.no-items {
+  display: none;
+  padding: 1em;
+  text-align: center;
+  color: #999;
+}
+option {
+  padding: .5em;
+}
+option:hover,
+option:checked {
+  color: #fff;
+  background-color: #398ee7;
+}
+option.current {
+  font-weight: bold;
+}
+
+x-notice {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  margin-bottom: 1em;
+  padding: 1em;
+  border: 2px solid #ffc107;
+  background-color: #fff3cd;
+  border-radius: 5px;
+  font-size: 90%;
+}
+x-notice .icon {
+  flex: 1 0 auto;
+  width: 1.5em;
+  height: 1.5em;
+  line-height: 1.5em;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
+  border-radius: 50%;
+  background-color: #ffc107;
+}
+x-notice em {
+  font-weight: bold;
+}
+x-notice p:not(:last-child) {
+  margin-bottom: 1em;
+}
+
+x-controls {
+  display: flex;
+  justify-content: end;
+  gap: 1em;
+  padding: 1em 0;
+}
+x-controls button {
+  padding: .4em 1.2em;
+  border-radius: 3px;
+  color: #fff;
+  background-color: #0061e0;
+  font-weight: bold;
+}
+x-controls button:hover {
+  background-color: #0250bb;
+}

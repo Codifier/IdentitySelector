@@ -1,0 +1,106 @@
+{
+  "extensionName": {
+    "message": "Identity Selector"
+  },
+  "extensionDescription": {
+    "message": "Selecteer altijd de juiste identiteit met Identiteitsselector!"
+  },
+
+  "optionsTitle": {
+    "message": "Identiteitsselector voorkeuren"
+  },
+  "optionsMessageInstallThankYou": {
+    "message": "Bedankt voor het installeren van Identiteitsselector!"
+  },
+  "optionsMessageInstallOptions": {
+    "message": "Hieronder vind je de beschikbare voorkeuren."
+  },
+  "optionsHeadingTitle": {
+    "message": "Identiteitsselector voorkeuren"
+  },
+  "optionsShowWhen": {
+    "message": "Toon Identiteitsselector bij:"
+  },
+  "optionsShowForReply": {
+    "message": "Berichten beantwoorden"
+  },
+  "optionsShowForForward": {
+    "message": "Berichten doorsturen"
+  },
+  "optionsShowForNew": {
+    "message": "Nieuwe berichten opstellen"
+  },
+  "optionsShowForDraft": {
+    "message": "Conceptberichten openen"
+  },
+
+  "optionsGeneral": {
+    "message": "Algemene voorkeuren"
+  },
+  "optionsComposeWindowOnCancel": {
+    "message": "Sluit opstelvenster bij annuleren identiteitsselectorvenster"
+  },
+
+  "errorOperationFailed": {
+    "message": "Bewerking mislukt: $1"
+  },
+  "errorSetComposeIdentity": {
+    "message": "Identiteit voor opstelvenster instellen mislukt: $1"
+  },
+  "errorCreateIdentity": {
+    "message": "Identiteit aanmaken voor account mislukt: $1"
+  },
+  "confirmCreateIdentity": {
+    "message": "De volgende identiteit zal worden aangemaakt:\n\nE-mailadres:\t\t$1\nIn account:\t\t$2\n\nNa het aanmaken van de nieuwe identiteit zal het opstelvenster gesloten en heropend moeten worden om de wijzigingen door te voeren.\n\nWil je deze nieuwe identiteit aanmaken?"
+  },
+
+  "popupTitle": {
+    "message": "Identiteitsselector"
+  },
+  "popupHeadingTitle": {
+    "message": "Selecteer identiteit"
+  },
+  "popupOpenOptions": {
+    "message": "Open voorkeuren"
+  },
+
+  "popupHeadingPotentialIdentities": {
+    "message": "Potentiële identiteitsadressen voor dit account in origineel bericht"
+  },
+  "popupNoPotentialIdentities": {
+    "message": "Geen gevonden"
+  },
+  "popupHeadingAccount": {
+    "message": "Account"
+  },
+  "popupHeadingIdentity": {
+    "message": "Identiteit"
+  },
+
+  "popupControlCancel": {
+    "message": "Annuleren"
+  },
+  "popupControlSelect": {
+    "message": "Selecteren"
+  },
+
+  "noticeCaution": {
+    "message": "Pas op!"
+  },
+  "noticeMismatchedIdentity": {
+    "message": "De identiteit waarnaar het bericht $1 verstuurd was (hieronder voorgeselecteerd) hoort bij een ander account ($1) dan het huidige account ($2)!"
+  },
+  "noticeMissingIdentity": {
+    "message": "Het bericht $1 was niet verstuurd naar een van je bestaande identiteiten! Misschien was het verstuurd naar een catch-all adres waarvoor je nog geen identiteit hebt aangemaakt."
+  },
+  "noticeCreateIdentity": {
+    "message": "Je kunt een nieuwe identiteit aanmaken door op een van de adressen in de onderstaande lijst van potentiële identiteitsadressen te klikken."
+  },
+
+  "placeholderYouReplyTo": {
+    "message": "dat je wilt beantwoorden"
+  },
+  "placeholderYouForward": {
+    "message": "dat je wilt doorsturen"
+  }
+}

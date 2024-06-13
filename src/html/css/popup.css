@@ -1,0 +1,31 @@
+@import url('global.css');
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+x-mismatched-identity,
+x-missing-identity {
+  display: flex;
+  flex-direction: column;
+}
+
+#potential-identities:empty {
+  display: none;
+}
+#potential-identities:empty + span.no-items {
+  display: block;
+}
+
+#options {
+  width: 16px;
+  height: 16px;
+  font-size: 0;
+  background: transparent url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="m 11.805863,0.35531364 a 4,4 0 0 0 -0.441407,0.00391 4,4 0 0 0 -2.5429688,1.16113286 4,4 0 0 0 -0.846679,4.3867184 l -7.28613282,7.4580081 c -1.1178188,1.144102 0.79914242,3.06515 1.94531282,1.945313 l 7.4580068,-7.2861331 a 4,4 0 0 0 4.386719,-0.84668 4,4 0 0 0 1.03418,-3.863281 l -3.087884,3.088874 -2.231445,-0.597657 -0.5976568,-2.231445 3.0820378,-3.08104776 a 4,4 0 0 0 -0.87207,-0.1376952 z"/></svg>') no-repeat center center;
+  opacity: 0.5;
+}
+#options:hover {
+  opacity: 1; 
+}

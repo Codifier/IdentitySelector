@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title data-i18n="popupTitle">Identity Selector</title>
+    <link href="/html/css/popup.css" type="text/css" rel="stylesheet">
+    <script src="/html/js/popup.js" type="module" defer></script>
+    
+    <template id="template-mismatched-identity">
+      <x-mismatched-identity>
+        <x-notice>
+          <span class="icon warning">!</span>
+          <x-message>
+            <p><em data-i18n="noticeCaution">Caution!</em> <span data-i18n="noticeMismatchedIdentity" data-i18n-subs="composeAction,identityAccount,currentAccount">The identity that the original message was sent to (preselected below) belongs to a different account than your current account (in bold)!</span></p>
+          </x-message>
+        </x-notice>
+      </x-mismatched-identity>
+    </template>
+    
+    <template id="template-missing-identity">
+      <x-missing-identity>
+        <x-notice>
+          <span class="icon warning">!</span>
+          <x-message>
+            <p><em data-i18n="noticeCaution">Caution!</em> <span data-i18n="noticeMissingIdentity" data-i18n-subs="composeAction">The original message was not sent to any of your existing identities! Perhaps it was sent to a catch-all address for which you have not created an identity yet.</span></p>
+            <p><span data-i18n="noticeCreateIdentity">You can create a new identity by clicking on one of addresses in the list of found potential identity addresses below.</span></p>
+          </x-message>
+        </x-notice>
+        <h2 data-i18n="popupHeadingPotentialIdentities">Potential identity addresses for this account found in original message</h2>
+        <select id="potential-identities" size="3"></select>
+        <span class="no-items" data-i18n="popupNoPotentialIdentities">None found</span>
+      </x-missing-identity>
+    </template>
+
+  </head>
+  <body>
+    <header>
+      <h1 data-i18n="popupHeadingTitle">Select identity</h1>
+      <button id="options" title="P" data-i18n="popupOpenOptions">Open preferences</button>
+    </header>
+    <h2 data-i18n="popupHeadingAccount">Account</h2>
+    <select id="accounts" size="3"></select>
+    <h2 data-i18n="popupHeadingIdentity">Identity</h2>
+    <select id="identities" size="3"></select>
+    <x-controls>
+      <button id="cancel" title="Esc" data-i18n="popupControlCancel">Cancel</button>
+      <button id="select" title="Enter" data-i18n="popupControlSelect">Select</button>
+    </x-controls>
+  </body>
+</html>

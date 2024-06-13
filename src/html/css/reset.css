@@ -1,0 +1,30 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: medium none;
+  border-spacing: 0;
+  outline: none;
+  outline: 0;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  text-align: inherit;
+  text-transform: inherit;
+  text-decoration: none;
+  text-indent: 0;
+  list-style: none outside none;
+  background: none repeat scroll 0 0 transparent;
+}
+*::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+:where(dialog) {
+  all: revert;
+  box-sizing: border-box;
+}

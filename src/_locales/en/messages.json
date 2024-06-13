@@ -1,0 +1,106 @@
+{
+  "extensionName": {
+    "message": "Identity Selector"
+  },
+  "extensionDescription": {
+    "message": "Always select the right identity with Identity Selector!"
+  },
+
+  "optionsTitle": {
+    "message": "Identity Selector preferences"
+  },
+  "optionsMessageInstallThankYou": {
+    "message": "Thank you for installing Identity Selector!"
+  },
+  "optionsMessageInstallOptions": {
+    "message": "Below you will find the available preferences."
+  },
+  "optionsHeadingTitle": {
+    "message": "Identity Selector preferences"
+  },
+  "optionsShowWhen": {
+    "message": "Show Identity Selector when:"
+  },
+  "optionsShowForReply": {
+    "message": "Replying to messages"
+  },
+  "optionsShowForForward": {
+    "message": "Forwarding messages"
+  },
+  "optionsShowForNew": {
+    "message": "Creating new messages"
+  },
+  "optionsShowForDraft": {
+    "message": "Opening draft messages"
+  },
+
+  "optionsGeneral": {
+    "message": "General preferences"
+  },
+  "optionsComposeWindowOnCancel": {
+    "message": "Close compose window when canceling identity selector window"
+  },
+
+  "errorOperationFailed": {
+    "message": "Operation failed: $1"
+  },
+  "errorSetComposeIdentity": {
+    "message": "Set identity for compose window failed: $1"
+  },
+  "errorCreateIdentity": {
+    "message": "Create account identity failed: $1"
+  },
+  "confirmCreateIdentity": {
+    "message": "The following new identity will be created:\n\nEmail address:\t$1\nIn account:\t\t$2\n\nAfter creating the new identity the compose window will need to be closed and reopened for changes to take effect.\n\nDo you want to create this new identity?"
+  },
+
+  "popupTitle": {
+    "message": "Identity Selector"
+  },
+  "popupHeadingTitle": {
+    "message": "Select identity"
+  },
+  "popupOpenOptions": {
+    "message": "Open preferences"
+  },
+
+  "popupHeadingPotentialIdentities": {
+    "message": "Potential identity addresses for this account in original message"
+  },
+  "popupNoPotentialIdentities": {
+    "message": "None found"
+  },
+  "popupHeadingAccount": {
+    "message": "Account"
+  },
+  "popupHeadingIdentity": {
+    "message": "Identity"
+  },
+
+  "popupControlCancel": {
+    "message": "Cancel"
+  },
+  "popupControlSelect": {
+    "message": "Select"
+  },
+
+  "noticeCaution": {
+    "message": "Caution!"
+  },
+  "noticeMismatchedIdentity": {
+    "message": "The identity that the message $1 was sent to (preselected below) belongs to a different account ($2) than your current account ($3)!"
+  },
+  "noticeMissingIdentity": {
+    "message": "The message $1 was not sent to any of your existing identities! Perhaps it was sent to a catch-all address for which you have not created an identity yet."
+  },
+  "noticeCreateIdentity": {
+    "message": "You can create a new identity by clicking on one of addresses in the list of found potential identity addresses below."
+  },
+
+  "placeholderYouReplyTo": {
+    "message": "you want to reply to"
+  },
+  "placeholderYouForward": {
+    "message": "you want to forward"
+  }
+}
