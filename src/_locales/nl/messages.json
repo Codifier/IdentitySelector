@@ -88,7 +88,7 @@
     "message": "Pas op!"
   },
   "noticeMismatchedIdentity": {
-    "message": "De identiteit waarnaar het bericht $1 verstuurd was (hieronder voorgeselecteerd) hoort bij een ander account ($1) dan het huidige account ($2)!"
+    "message": "De identiteit waarnaar het bericht $1 verstuurd was (hieronder voorgeselecteerd) hoort bij een ander account ($2) dan het huidige account ($3)!"
   },
   "noticeMissingIdentity": {
     "message": "Het bericht $1 was niet verstuurd naar een van je bestaande identiteiten! Misschien was het verstuurd naar een catch-all adres waarvoor je nog geen identiteit hebt aangemaakt."
