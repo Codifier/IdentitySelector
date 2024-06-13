@@ -1,0 +1,4 @@
+#!/bin/sh
+
+mv builds/identityselector.xpi builds/identityselector.previous.xpi 2>/dev/null
+zip -r builds/identityselector.xpi src/*
