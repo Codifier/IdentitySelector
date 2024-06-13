@@ -5,7 +5,7 @@
 
 Identity Selector is an extension for Thunderbird that prompts you to select the correct identity before composing a message.
 
-The available identities in the prompt window are neately organized by account. The prompt window can be enabled/disabled for new, reply, forward, and draft messages.
+The available identities in the prompt window are neatly organized by account. The prompt window can be enabled/disabled for new, reply, forward, and draft messages.
 
 Identity Selector will furthermore warn you about the following cases if you want to reply to or forward a message:
 
