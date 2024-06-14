@@ -1,4 +1,19 @@
 #!/bin/sh
 
-mv builds/identityselector.xpi builds/identityselector.previous.xpi 2>/dev/null
-mkdir -p builds && cd src && zip -r ../builds/identityselector.xpi *
+SRCDIR='src'
+BUILDDIR='builds'
+BUILDSRCDIR=$BUILDDIR/$SRCDIR
+
+mkdir -p $BUILDDIR
+
+mv $BUILDDIR/identityselector.xpi $BUILDDIR/identityselector.previous.xpi 2>/dev/null
+
+cp -R $SRCDIR $BUILDDIR
+cp LICENSE $BUILDSRCDIR/LICENSE
+cd $BUILDSRCDIR >/dev/null
+zip -qr ../identityselector.xpi *
+cd - >/dev/null
+
+if [ -d "$BUILDSRCDIR" ]; then
+  rm -rf $BUILDSRCDIR
+fi
