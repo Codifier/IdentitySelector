@@ -9,5 +9,5 @@ The available identities in the prompt window are neatly organized by account. T
 
 Identity Selector will furthermore warn you about the following cases if you want to reply to or forward a message:
 
-- If the original message was sent to a non-existent identity (e.g. received by a catch-all address); it will use heuristics to show you potential new identity addresses for to you to create before proceeding.
+- If the original message was sent to a non-existent identity (e.g. received by a catch-all address); it will use heuristics to show you potential new identity addresses for you to create before proceeding.
 - If the original message was sent to an identity belonging to another account than your current account; your current account will always appear emphasized in the accounts list.
