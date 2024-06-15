@@ -4,7 +4,9 @@ import { Translator } from './Translator.js';
 export class Popup
 {
   static MIN_WIDTH = 320;
-  static MIN_HEIGHT = 650;
+  static MAX_WIDTH = 600;
+  static MIN_HEIGHT = 400;
+  static MAX_HEIGHT = 650;
 
   constructor() {
     this.parameters = {};
@@ -93,7 +95,7 @@ export class Popup
         }
       }
     }
-    
+
     window.addEventListener('keydown', keyDown);
 
     this.buttonOptions.addEventListener('click', openOptions);
@@ -119,7 +121,7 @@ export class Popup
     const translationSubstitutions = {
       composeAction: (this.parameters.composeType in this.placeholderComposeTypeMap) ? this.translator.translate(this.placeholderComposeTypeMap[this.parameters.composeType]) : ''
     };
-    
+
     isMissingIdentity && this.header.after(this.missingIdentity);
     isMismatchedIdentity && this.header.after(this.mismatchedIdentity);
 
@@ -148,6 +150,8 @@ export class Popup
     this.selectAccounts.dispatchEvent(new Event('change'));
 
     this.translator.translate(document, translationSubstitutions);
+
+    browser.runtime.sendMessage({ action: 'resize-popup-request', height: document.body.scrollHeight });
   }
 
   async handleMessage(message, sender, sendResponse) {
