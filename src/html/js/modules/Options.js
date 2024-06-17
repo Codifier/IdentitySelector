@@ -2,6 +2,16 @@ import { Translator } from './Translator.js';
 
 export class Options
 {
+  static DEFAULT_OPTIONS = Object.freeze({
+    justInstalled: true,
+    showForReply: true,
+    showForForward: true,
+    showForNew: true,
+    showForDraft: false,
+    closeComposeWindowOnCancel: false,
+    showComposeWindowAction: true
+  });
+
   constructor() {
     this.translator = new Translator();
   }

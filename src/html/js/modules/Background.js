@@ -1,17 +1,8 @@
+import { Options } from './Options.js';
 import { IdentityMediator } from './IdentityMediator.js';
 
 export class Background
 {
-  static DEFAULT_OPTIONS = Object.freeze({
-    justInstalled: true,
-    showForReply: true,
-    showForForward: true,
-    showForNew: true,
-    showForDraft: false,
-    closeComposeWindowOnCancel: false,
-    showComposeWindowAction: true
-  });
-
   constructor() {
     browser.runtime.onInstalled.addListener(async function(details) {
       switch(details.reason) {
@@ -30,7 +21,7 @@ export class Background
 
   async run() {
     const storedOptions = await browser.storage.sync.get();
-    const options = { ...Background.DEFAULT_OPTIONS, ...storedOptions };
+    const options = { ...Options.DEFAULT_OPTIONS, ...storedOptions };
     browser.storage.sync.set(options);
 
     browser.tabs.onCreated.addListener(this.handleTabCreated);
