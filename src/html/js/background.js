@@ -1,7 +1,7 @@
-import { IdentitySelector } from './modules/IdentitySelector.js';
+import { Background } from './modules/Background.js';
 
 // instantiate before DOMContentLoaded, for browser.runtime.onInstalled listener in constructor
-const identitySelector = new IdentitySelector();
+const background = new Background();
 document.addEventListener('DOMContentLoaded', async function(e) {
-  identitySelector.run();
+  background.run();
 }, { once: true });

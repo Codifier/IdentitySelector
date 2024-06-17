@@ -3,14 +3,14 @@ import { MailIdentity } from './MailIdentity.js';
 
 export class IdentityMediator
 {
-  constructor(identitySelector, tab, options = {}) {
+  constructor(background, tab, options = {}) {
     if(tab.type != 'messageCompose') {
       throw new Error('Invalid Tab.type; should be messageCompose, but got: ' + tab.type);
     }
 
     this.composeIdentitySet = false;
     this.running = false;
-    this.identitySelector = identitySelector;
+    this.background = background;
     this.options = options;
     this.composeWindowId = tab.windowId;
     this.composeTabId = tab.id;
@@ -244,7 +244,7 @@ export class IdentityMediator
   async handleTabRemoved(tabId) {
     if(tabId == this.composeTabId) {
       this.composeWindowId = this.composeTabId = null;
-      this.identitySelector.removeMediator(this.composeTabId);
+      this.background.removeMediator(this.composeTabId);
       if(this.popupTabId != null) {
         browser.tabs.remove(this.popupTabId);
       }

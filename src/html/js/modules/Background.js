@@ -1,6 +1,6 @@
 import { IdentityMediator } from './IdentityMediator.js';
 
-export class IdentitySelector
+export class Background
 {
   static DEFAULT_OPTIONS = Object.freeze({
     justInstalled: true,
@@ -30,7 +30,7 @@ export class IdentitySelector
 
   async run() {
     const storedOptions = await browser.storage.sync.get();
-    const options = { ...IdentitySelector.DEFAULT_OPTIONS, ...storedOptions };
+    const options = { ...Background.DEFAULT_OPTIONS, ...storedOptions };
     browser.storage.sync.set(options);
 
     browser.tabs.onCreated.addListener(this.handleTabCreated);
