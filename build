@@ -1,19 +1,88 @@
-#!/usr/bin/env bash
+#!/usr/bin/env php
+<?php
 
-SRCDIR='src'
-BUILDDIR='builds'
-BUILDSRCDIR=$BUILDDIR/$SRCDIR
+require_once 'vendor/autoload.php';
 
-mkdir -p $BUILDDIR
+use Codifier\Versioning\BuildScript;
+use Codifier\Versioning\Version;
+use Codifier\Versioning\Event\BuildEvent;
 
-mv $BUILDDIR/identityselector.xpi $BUILDDIR/identityselector.previous.xpi 2>/dev/null
+const DS = DIRECTORY_SEPARATOR;
+const JSON_FLAGS = JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE;
+const JSON_FLAGS_DECODE = JSON_FLAGS | JSON_OBJECT_AS_ARRAY | JSON_BIGINT_AS_STRING;
+const JSON_FLAGS_ENCODE = JSON_FLAGS | JSON_PRESERVE_ZERO_FRACTION | JSON_UNESCAPED_LINE_TERMINATORS | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT;
 
-cp -R $SRCDIR $BUILDDIR
-cp LICENSE $BUILDSRCDIR/LICENSE
-cd $BUILDSRCDIR >/dev/null
-zip -qr ../identityselector.xpi *
-cd - >/dev/null
+BuildScript::create()
+  ->addEventListener('build', function(BuildEvent $e) {
+  
+    $commitUrl = 'https://github.com/Codifier/IdentitySelector/commit/';
+    $changelogPath = 'CHANGELOG.md';
+    $archiveName = 'identityselector.xpi';
+    $srcDir = 'src';
+    $manifestPath = 'src/manifest.json';
+    
+    switch($e->getBuildType()) {
+      case BuildScript::RELEASE:
+        $lastVersion = $e->getLastVersion();
+        $nextVersion = $e->getNextVersion();
+        
+        $buildDir = 'releases' . DS . $nextVersion;
+        
+        $git = $this->getGit();
+        
+        /* Update version number in manifest.json and commit */
+        $manifestData = json_decode(file_get_contents($manifestPath), null, 512, JSON_FLAGS_DECODE);
+        $manifestData['version'] = (string) $nextVersion;
+        
+        $manifestJson = preg_replace_callback(
+          '/^(?: {4})+/m', 
+          fn($matches) => str_repeat(' ', 2 * strlen($matches[0]) / 4),
+          json_encode($manifestData, JSON_FLAGS_ENCODE)
+        );
+        file_put_contents($manifestPath, $manifestJson . "\n");
+        
+        $git->add($manifestPath);
+        $git->commit('Update version number');
+        
+        /* Generate changelog based on last 5 version tags and commit */
+        $changelogData = [];
+        $last5VersionTags = array_reverse(array_slice($git->tag()->getAllVersionTags(), -5));
+        foreach($last5VersionTags as $versionTag) {
+          $nextVersionTag ??= null;
+          $logs = array_filter($git->log()->getAll($versionTag, $nextVersionTag, ['format' => "- [%s]($commitUrl%h)", 'no-merges' => null], $srcDir), fn($log) => !str_contains($log, '[Update version number]'));
+          if(count($logs) > 0) {
+            $version = (string) ($nextVersionTag !== null ? Version::fromGitTag($nextVersionTag) : $nextVersion);
+            $changelogData[] = "# $version\n\n## Fixed/changed\n\n" . implode("\n", $logs) . "\n\n";
+          }
+          $nextVersionTag = $versionTag;
+        }
+        file_put_contents($changelogPath, $changelog = implode("----\n\n", $changelogData));
+        
+        $git->add($changelogPath);
+        $git->commit('Update changelog');
+        break;
+        
+      case BuildScript::DEBUG:
+      default:
+        $buildDir = 'builds';
+        break;
+    }
+    
+    /* Build the actual .xpi file */
+    $buildDir = rtrim(trim($buildDir), DS);
+    $srcDir = rtrim(trim($srcDir), DS);
+    $buildSrcDir = $buildDir . DS . $srcDir;
 
-if [ -d "$BUILDSRCDIR" ]; then
-  rm -rf $BUILDSRCDIR
-fi
+    $escapedBuildDir = escapeshellarg($buildDir);
+    $escapedSrcDir = escapeshellarg($srcDir);
+    $escapedBuildSrcDir = escapeshellarg($buildSrcDir);
+    $escapedArchivePath = escapeshellarg("../$archiveName");
+
+    `mkdir -p $escapedBuildDir`;
+    `cp -R $escapedSrcDir $escapedBuildDir`;
+    `cp LICENSE $escapedBuildSrcDir`;
+    `cd $escapedBuildSrcDir && zip -r $escapedArchivePath *`;
+    `rm -rf $escapedBuildSrcDir`;
+    
+  })
+  ->run();
