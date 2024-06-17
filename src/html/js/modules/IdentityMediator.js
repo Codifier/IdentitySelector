@@ -38,7 +38,7 @@ export class IdentityMediator
   }
 
   async run() {
-    if(this.running || this.popupTabId != null) {
+    if(this.running || this.composeTabId == null || this.popupTabId != null) {
       return;
     }
 
@@ -61,6 +61,8 @@ export class IdentityMediator
 
       this.popupWindowId = popupWindow.id;
       this.popupTabId = popupWindow.tabs[0].id;
+
+      console.debug(this.composeTabId, this.popupTabId);
     }
     finally {
       this.running = false;
@@ -243,6 +245,7 @@ export class IdentityMediator
 
   async handleTabRemoved(tabId) {
     if(tabId == this.composeTabId) {
+      this.composeWindowId = this.composeTabId = null;
       this.identitySelector.removeMediator(this.composeTabId);
       if(this.popupTabId != null) {
         browser.tabs.remove(this.popupTabId);
@@ -255,7 +258,7 @@ export class IdentityMediator
       browser.runtime.onMessage.removeListener(this.handleMessage);
       browser.composeAction.enable(this.composeTabId);
 
-      if(!this.composeIdentitySet) {
+      if(this.composeTabId != null && !this.composeIdentitySet) {
         const storedOptions = await browser.storage.sync.get();
         const options = { ...storedOptions, ...this.options };
         if(options.closeComposeWindowOnCancel) {
