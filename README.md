@@ -1,4 +1,4 @@
-<h1 align="center">Identity Selector</h1>
+<h1 align="center"><sub><img src="src/html/img/icon.svg" height="34" width="34"></sub> Identity Selector</h1>
 <p align="center"><sub>Select the correct identity before composing a message.</sub></p>
 
 ---
