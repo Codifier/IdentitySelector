@@ -73,6 +73,6 @@ export class IdentitySelector
   }
 
   removeMediator(composeTabId) {
-    delete this.mediatorMap[composeTabId.id];
+    delete this.mediatorMap[composeTabId];
   }
 }
