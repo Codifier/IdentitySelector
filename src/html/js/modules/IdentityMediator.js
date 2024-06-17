@@ -3,20 +3,29 @@ import { MailIdentity } from './MailIdentity.js';
 
 export class IdentityMediator
 {
-  constructor(tab) {
+  constructor(identitySelector, tab, options = {}) {
     if(tab.type != 'messageCompose') {
       throw new Error('Invalid Tab.type; should be messageCompose, but got: ' + tab.type);
     }
 
     this.composeIdentitySet = false;
+    this.running = false;
+    this.identitySelector = identitySelector;
+    this.options = options;
     this.composeWindowId = tab.windowId;
     this.composeTabId = tab.id;
     this.popupWindowId = null;
     this.popupTabId = null;
 
     this.handleMessage = this.handleMessage.bind(this);
-    this.handleWindowRemoved = this.handleWindowRemoved.bind(this);
+    this.handleTabRemoved = this.handleTabRemoved.bind(this);
     this.handleWindowFocusChanged = this.handleWindowFocusChanged.bind(this);
+  }
+
+  setOptions(options = {}) {
+    this.options = options;
+
+    return this;
   }
 
   createPopupBounds(composeWindow, preferredWidth, preferredHeight) {
@@ -29,25 +38,33 @@ export class IdentityMediator
   }
 
   async run() {
-    if(this.popupWindowId != null) {
-      throw new Error('Popup window already exists for this compose window.');
+    if(this.running || this.popupTabId != null) {
+      return;
     }
 
-    await this.refresh();
+    try {
+      this.running = true;
 
-    browser.runtime.onMessage.addListener(this.handleMessage);
-    browser.windows.onRemoved.addListener(this.handleWindowRemoved);
-    browser.windows.onFocusChanged.addListener(this.handleWindowFocusChanged);
+      await this.refresh();
 
-    const composeWindow = await browser.windows.get(this.composeWindowId);
-    const popupInfo = this.createPopupBounds(composeWindow, Popup.MAX_WIDTH, Popup.MIN_HEIGHT);
-    popupInfo.url = browser.runtime.getURL('/html/popup.html');
-    popupInfo.type = 'popup';
-    popupInfo.allowScriptsToClose = true;
-    const popupWindow = await browser.windows.create(popupInfo);
+      browser.runtime.onMessage.addListener(this.handleMessage);
+      browser.tabs.onRemoved.addListener(this.handleTabRemoved);
+      browser.windows.onFocusChanged.addListener(this.handleWindowFocusChanged);
 
-    this.popupWindowId = popupWindow.id;
-    this.popupTabId = popupWindow.tabs[0].id;
+      const composeWindow = await browser.windows.get(this.composeWindowId);
+      const popupInfo = this.createPopupBounds(composeWindow, Popup.MAX_WIDTH, Popup.MIN_HEIGHT);
+      popupInfo.url = browser.runtime.getURL('/html/popup.html');
+      popupInfo.type = 'popup';
+      popupInfo.allowScriptsToClose = true;
+      const popupWindow = await browser.windows.create(popupInfo);
+      browser.composeAction.disable(this.composeTabId);
+
+      this.popupWindowId = popupWindow.id;
+      this.popupTabId = popupWindow.tabs[0].id;
+    }
+    finally {
+      this.running = false;
+    }
   }
 
   async handleMessage(message, sender, sendResponse) {
@@ -224,26 +241,32 @@ export class IdentityMediator
     };
   }
 
-  async handleWindowRemoved(windowId) {
-    if(windowId == this.composeWindowId) {
-      browser.windows.remove(this.popupWindowId);
+  async handleTabRemoved(tabId) {
+    if(tabId == this.composeTabId) {
+      this.identitySelector.removeMediator(this.composeTabId);
+      if(this.popupTabId != null) {
+        browser.tabs.remove(this.popupTabId);
+      }
     }
-    else if(windowId == this.popupWindowId) {
+    else if(tabId == this.popupTabId) {
+      this.popupWindowId = this.popupTabId = null;
       browser.windows.onFocusChanged.removeListener(this.handleWindowFocusChanged);
-      browser.windows.onRemoved.removeListener(this.handleWindowRemoved);
+      browser.tabs.onRemoved.removeListener(this.handleTabRemoved);
       browser.runtime.onMessage.removeListener(this.handleMessage);
+      browser.composeAction.enable(this.composeTabId);
 
       if(!this.composeIdentitySet) {
         const storedOptions = await browser.storage.sync.get();
-        if(storedOptions.closeComposeWindowOnCancel) {
-          browser.windows.remove(this.composeWindowId);
+        const options = { ...storedOptions, ...this.options };
+        if(options.closeComposeWindowOnCancel) {
+          browser.tabs.remove(this.composeTabId);
         }
       }
     }
   }
 
   async handleWindowFocusChanged(windowId) {
-    if(windowId == this.composeWindowId) {
+    if(this.popupWindowId != null && windowId == this.composeWindowId) {
       browser.windows.update(this.popupWindowId, { focused: true });
     }
   }

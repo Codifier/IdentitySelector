@@ -5,7 +5,7 @@ export class Popup
 {
   static MIN_WIDTH = 320;
   static MAX_WIDTH = 600;
-  static MIN_HEIGHT = 400;
+  static MIN_HEIGHT = 300;
   static MAX_HEIGHT = 650;
 
   constructor() {
@@ -152,14 +152,16 @@ export class Popup
     this.translator.translate(document, translationSubstitutions);
 
     browser.runtime.sendMessage({ action: 'resize-popup-request', height: document.body.scrollHeight });
+
+    window.focus();
   }
 
-  async handleMessage(message, sender, sendResponse) {
+  handleMessage(message, sender, sendResponse) {
     if(sender.tab != null) {
       return;
     }
 
-    if(!message.success) {
+    if('success' in message && !message.success) {
       alert(this.translator.translate('errorOperationFailed', { errorMessage: message.error.message }));
       return;
     }

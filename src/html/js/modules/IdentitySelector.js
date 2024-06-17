@@ -8,9 +8,10 @@ export class IdentitySelector
     showForForward: true,
     showForNew: true,
     showForDraft: false,
-    closeComposeWindowOnCancel: false
+    closeComposeWindowOnCancel: false,
+    showComposeWindowAction: true
   });
-  
+
   constructor() {
     browser.runtime.onInstalled.addListener(async function(details) {
       switch(details.reason) {
@@ -20,23 +21,35 @@ export class IdentitySelector
           break;
       }
     });
-    
+
+    this.mediatorMap = {};
+
     this.handleTabCreated = this.handleTabCreated.bind(this);
+    this.handleComposeActionClicked = this.handleComposeActionClicked.bind(this);
   }
-  
+
   async run() {
     const storedOptions = await browser.storage.sync.get();
     const options = { ...IdentitySelector.DEFAULT_OPTIONS, ...storedOptions };
     browser.storage.sync.set(options);
-    
+
     browser.tabs.onCreated.addListener(this.handleTabCreated);
+    browser.composeAction.onClicked.addListener(this.handleComposeActionClicked);
   }
 
-  async handleTabCreated(tab) {
+  handleTabCreated(tab) {
+    this.maybeCreateMediatorForTab(tab);
+  }
+
+  async handleComposeActionClicked(tab, clickData) {
+    this.maybeCreateMediatorForTab(tab, { closeComposeWindowOnCancel: false });
+  }
+
+  async maybeCreateMediatorForTab(tab, options = {}) {
     if(tab.type != 'messageCompose') {
       return;
     }
-    
+
     const storedOptions = await browser.storage.sync.get();
     const composeDetails = await browser.compose.getComposeDetails(tab.id);
     switch(composeDetails.type) {
@@ -52,7 +65,14 @@ export class IdentitySelector
       default:
         return;
     }
-    
-    new IdentityMediator(tab).run();
+
+    this.mediatorMap[tab.id] = this.mediatorMap[tab.id] ?? new IdentityMediator(this, tab);
+    this.mediatorMap[tab.id]
+      .setOptions(options)
+      .run();
+  }
+
+  removeMediator(composeTabId) {
+    delete this.mediatorMap[composeTabId.id];
   }
 }

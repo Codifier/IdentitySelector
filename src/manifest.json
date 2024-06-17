@@ -21,6 +21,11 @@
     "browser_style": false,
     "open_in_tab": false
   },
+  "compose_action": {
+    "default_icon": "/html/img/icon.svg",
+    "default_label": "",
+    "browser_style": false
+  },
   "icons": {
     "16": "/html/img/icon.svg",
     "32": "/html/img/icon.svg",
