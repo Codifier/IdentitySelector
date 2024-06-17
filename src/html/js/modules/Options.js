@@ -22,7 +22,6 @@ export class Options
     }
 
     const change = (e) => {
-      console.debug(e.target.id);
       browser.storage.sync.set({ [e.target.id]: e.target.checked });
     }
 
