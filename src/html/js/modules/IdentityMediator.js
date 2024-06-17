@@ -61,8 +61,6 @@ export class IdentityMediator
 
       this.popupWindowId = popupWindow.id;
       this.popupTabId = popupWindow.tabs[0].id;
-
-      console.debug(this.composeTabId, this.popupTabId);
     }
     finally {
       this.running = false;
