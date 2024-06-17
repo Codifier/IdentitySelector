@@ -22,13 +22,13 @@
     "open_in_tab": false
   },
   "icons": {
-    "16": "/html/img/icon-16.png",
-    "32": "/html/img/icon-32.png",
-    "48": "/html/img/icon-48.png",
-    "64": "/html/img/icon-64.png",
-    "96": "/html/img/icon-96.png",
-    "128": "/html/img/icon-128.png",
-    "256": "/html/img/icon-256.png",
-    "512": "/html/img/icon-512.png"
+    "16": "/html/img/icon.svg",
+    "32": "/html/img/icon.svg",
+    "48": "/html/img/icon.svg",
+    "64": "/html/img/icon.svg",
+    "96": "/html/img/icon.svg",
+    "128": "/html/img/icon.svg",
+    "256": "/html/img/icon.svg",
+    "512": "/html/img/icon.svg"
   }
 }
