@@ -74,6 +74,8 @@ export class Popup
           const option = new Option(mailboxName, identity.id, selected, selected);
           this.selectIdentities.add(option);
         }
+
+        this.requestResize();
       }
     }
 
@@ -151,9 +153,13 @@ export class Popup
 
     this.translator.translate(document, translationSubstitutions);
 
-    browser.runtime.sendMessage({ action: 'resize-popup-request', height: document.body.scrollHeight });
+    this.requestResize();
 
     window.focus();
+  }
+
+  requestResize() {
+    browser.runtime.sendMessage({ action: 'resize-popup-request', height: document.body.scrollHeight });
   }
 
   handleMessage(message, sender, sendResponse) {
