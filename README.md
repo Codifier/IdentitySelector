@@ -3,7 +3,11 @@
 
 ---
 
-<p align="center"><a href="https://addons.thunderbird.net/thunderbird/addon/identity-selector/">Get the add-on for Thunderbird</a></p>
+<p align="center">
+  <a href="https://addons.thunderbird.net/thunderbird/addon/identity-selector/">
+    <img src="https://github.com/Codifier/IdentitySelector/assets/5677621/3c5996ee-112a-4a58-8123-1b53451a1c06" width="150" alt="Get the add-on for Thunderbird">
+  </a>
+</p>
 
 ---
 
