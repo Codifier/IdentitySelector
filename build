@@ -16,11 +16,12 @@ const JSON_FLAGS_ENCODE = JSON_FLAGS | JSON_PRESERVE_ZERO_FRACTION | JSON_UNESCA
 BuildScript::create()
   ->addEventListener('build', function(BuildEvent $e) {
 
-    $commitUrl = 'https://github.com/Codifier/IdentitySelector/commit/';
-    $changelogPath = 'CHANGELOG.md';
-    $archiveName = 'identityselector.xpi';
     $srcDir = 'src';
-    $manifestPath = 'src/manifest.json';
+    $archiveName = 'identityselector.xpi';
+    $manifestPath = $srcDir . DS . 'manifest.json';
+    $changelogPath = 'CHANGELOG.md';
+    $licensePath = 'LICENSE';
+    $commitUrl = 'https://github.com/Codifier/IdentitySelector/commit/';
 
     switch($e->getBuildType()) {
       case BuildScript::RELEASE:
@@ -77,7 +78,7 @@ BuildScript::create()
 
     `mkdir -p $escapedBuildDir`;
     `cp -R $escapedSrcDir $escapedBuildDir`;
-    `cp LICENSE $escapedBuildSrcDir`;
+    `cp $licensePath $escapedBuildSrcDir`;
     `cd $escapedBuildSrcDir && zip -r $escapedArchivePath *`;
     `rm -rf $escapedBuildSrcDir`;
 
