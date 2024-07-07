@@ -8,29 +8,35 @@ export class Popup
   static MIN_HEIGHT = 300;
   static MAX_HEIGHT = 650;
 
-  constructor() {
-    this.parameters = {};
+  #parameters = {};
+  #elements = {};
+  #translator = new Translator();
+  #placeholderComposeTypeMap = {
+    reply: 'placeholderYouReplyTo',
+    forward: 'placeholderYouForward'
+  };
+  #listeners = {
+    handleMessage: (message, sender, sendResponse) => {
+      if(sender.tab != null) {
+        return;
+      }
 
-    this.translator = new Translator();
-    this.placeholderComposeTypeMap = {
-      reply: 'placeholderYouReplyTo',
-      forward: 'placeholderYouForward'
-    };
-    this.handleMessage = this.handleMessage.bind(this);
-  }
+      if('success' in message && !message.success) {
+        alert(this.#translator.translate('errorOperationFailed', { errorMessage: message.error.message }));
+        return;
+      }
 
-  run() {
-    this.header = document.querySelector('header');
-    this.buttonOptions = this.header.querySelector('#options');
-    this.mismatchedIdentity = document.querySelector('#template-mismatched-identity').content.firstElementChild.cloneNode(true);
-    this.missingIdentity = document.querySelector('#template-missing-identity').content.firstElementChild.cloneNode(true);
-    this.selectPotentialIdentities = this.missingIdentity.querySelector('#potential-identities');
-    this.selectAccounts = document.querySelector('#accounts');
-    this.selectIdentities = document.querySelector('#identities');
-    this.buttonCancel = document.querySelector('#cancel');
-    this.buttonSelect = document.querySelector('#select');
-
-    const keyDown = async (e) => {
+      switch(message.action) {
+        case 'parameters-response':
+          this.#parameters = message.parameters || {};
+          this.#redraw();
+          break;
+        case 'create-identity-response':
+          browser.runtime.sendMessage({ action: 'recreate-compose-window-request', identity: message.identity });
+          break;
+      }
+    },
+    keyDown: async (e) => {
       switch(e.key) {
         case 'p':
           openOptions();
@@ -42,100 +48,115 @@ export class Popup
           selectIdentity();
           break;
       }
-    }
-
-    const openOptions = (e) => {
+    },
+    openOptions: (e) => {
       browser.runtime.openOptionsPage();
-    }
-
-    const cancel = (e) => {
+    },
+    cancel: (e) => {
       window.close();
-    }
-
-    const selectIdentity = async (e) => {
+    },
+    selectIdentity: async (e) => {
       try {
-        await browser.runtime.sendMessage({ action: 'set-compose-identity-request', identityId: this.selectIdentities.value });
+        await browser.runtime.sendMessage({ action: 'set-compose-identity-request', identityId: this.#elements.selectIdentities.value });
         window.close();
       }
       catch(error) {
-        alert(this.translator.translate('errorSetComposeIdentity', { errorMessage: error.message }));
+        alert(this.#translator.translate('errorSetComposeIdentity', { errorMessage: error.message }));
       }
-    }
-
-    const selectAccount = (e) => {
-      const optionAccount = this.selectAccounts.selectedOptions[0] ?? null;
+    },
+    selectAccount: (e) => {
+      const optionAccount = this.#elements.selectAccounts.selectedOptions[0] ?? null;
       if(optionAccount != null) {
-        const accountId = this.parameters.originalAccountId || this.parameters.composeAccountId;
-        const identityId = this.parameters.originalIdentityId || this.parameters.composeIdentityId;
-        this.selectIdentities.textContent = '';
+        const accountId = this.#parameters.originalAccountId || this.#parameters.composeAccountId;
+        const identityId = this.#parameters.originalIdentityId || this.#parameters.composeIdentityId;
+        this.#elements.selectIdentities.textContent = '';
         for(const identity of optionAccount.identities) {
           const selected = (optionAccount.value != accountId && identity === optionAccount.identities[0]) || identity.id === identityId;
           const mailboxName = MailIdentity.fromNativeMailIdentity(identity).toMailboxName();
           const option = new Option(mailboxName, identity.id, selected, selected);
-          this.selectIdentities.add(option);
+          this.#elements.selectIdentities.add(option);
         }
 
-        this.requestResize();
+        this.#requestResize();
       }
-    }
-
-    const selectPotentialIdentity = async (e) => {
-      const optionPotentialIdentity = this.selectPotentialIdentities.selectedOptions[0] ?? null;
-      const optionAccount = this.selectAccounts.selectedOptions[0] ?? null;
+    },
+    selectPotentialIdentity: async (e) => {
+      const optionPotentialIdentity = this.#elements.selectPotentialIdentities.selectedOptions[0] ?? null;
+      const optionAccount = this.#elements.selectAccounts.selectedOptions[0] ?? null;
       if(optionPotentialIdentity != null && optionAccount != null) {
-        if(!confirm(this.translator.translate('confirmCreateIdentity', { identityEmail: optionPotentialIdentity.label, accountName: optionAccount.label }))) {
-          this.selectPotentialIdentities.selectedIndex = -1;
-          this.selectPotentialIdentities.blur();
+        if(!confirm(this.#translator.translate('confirmCreateIdentity', { identityEmail: optionPotentialIdentity.label, accountName: optionAccount.label }))) {
+          this.#elements.selectPotentialIdentities.selectedIndex = -1;
+          this.#elements.selectPotentialIdentities.blur();
         }
         else {
           try {
             await browser.runtime.sendMessage({ action: 'create-identity-request', accountId: optionAccount.value, identityEmail: optionPotentialIdentity.label });
           }
           catch(error) {
-            alert(this.translator.translate('errorCreateIdentity', { errorMessage: error.message }));
+            alert(this.#translator.translate('errorCreateIdentity', { errorMessage: error.message }));
           }
         }
       }
     }
+  };
 
-    window.addEventListener('keydown', keyDown);
+  run() {
+    this.#initializeElements();
+    this.#initializeListeners();
 
-    this.buttonOptions.addEventListener('click', openOptions);
-    this.selectPotentialIdentities.addEventListener('click', selectPotentialIdentity);
-    this.selectAccounts.addEventListener('change', selectAccount);
-    this.buttonCancel.addEventListener('click', cancel);
-    this.buttonSelect.addEventListener('click', selectIdentity);
-
-    browser.runtime.onMessage.addListener(this.handleMessage);
     browser.runtime.sendMessage({ action: 'parameters-request' });
 
-    this.translator.translate(document);
+    this.#translator.translate(document);
   }
 
-  async redraw() {
+  #initializeElements() {
+    this.#elements.header = document.querySelector('header');
+    this.#elements.buttonOptions = this.#elements.header.querySelector('#options');
+    this.#elements.mismatchedIdentity = document.querySelector('#template-mismatched-identity').content.firstElementChild.cloneNode(true);
+    this.#elements.missingIdentity = document.querySelector('#template-missing-identity').content.firstElementChild.cloneNode(true);
+    this.#elements.selectPotentialIdentities = this.#elements.missingIdentity.querySelector('#potential-identities');
+    this.#elements.selectAccounts = document.querySelector('#accounts');
+    this.#elements.selectIdentities = document.querySelector('#identities');
+    this.#elements.buttonCancel = document.querySelector('#cancel');
+    this.#elements.buttonSelect = document.querySelector('#select');
+  }
+
+  #initializeListeners() {
+    window.addEventListener('keydown', this.#listeners.keyDown);
+
+    this.#elements.buttonOptions.addEventListener('click', this.#listeners.openOptions);
+    this.#elements.selectPotentialIdentities.addEventListener('click', this.#listeners.selectPotentialIdentity);
+    this.#elements.selectAccounts.addEventListener('change', this.#listeners.selectAccount);
+    this.#elements.buttonCancel.addEventListener('click', this.#listeners.cancel);
+    this.#elements.buttonSelect.addEventListener('click', this.#listeners.selectIdentity);
+
+    browser.runtime.onMessage.addListener(this.#listeners.handleMessage);
+  }
+
+  async #redraw() {
     const storedOptions = await browser.storage.sync.get();
-    const accountId = this.parameters.originalAccountId || this.parameters.composeAccountId;
-    const identityId = this.parameters.originalIdentityId || this.parameters.composeIdentityId;
-    const isMismatchedIdentity = !!this.parameters.isMismatchedIdentity;
-    const isMissingIdentity = !!this.parameters.isMissingIdentity;
-    const potentialIdentityEmails = this.parameters.potentialIdentityEmails || [];
+    const accountId = this.#parameters.originalAccountId || this.#parameters.composeAccountId;
+    const identityId = this.#parameters.originalIdentityId || this.#parameters.composeIdentityId;
+    const isMismatchedIdentity = !!this.#parameters.isMismatchedIdentity;
+    const isMissingIdentity = !!this.#parameters.isMissingIdentity;
+    const potentialIdentityEmails = this.#parameters.potentialIdentityEmails || [];
     const accounts = (await browser.accounts.list()).filter(account => account.type != 'none');
     const translationSubstitutions = {
-      composeAction: (this.parameters.composeType in this.placeholderComposeTypeMap) ? this.translator.translate(this.placeholderComposeTypeMap[this.parameters.composeType]) : ''
+      composeAction: (this.#parameters.composeType in this.#placeholderComposeTypeMap) ? this.#translator.translate(this.#placeholderComposeTypeMap[this.#parameters.composeType]) : ''
     };
 
-    isMissingIdentity && this.header.after(this.missingIdentity);
-    isMismatchedIdentity && this.header.after(this.mismatchedIdentity);
+    isMissingIdentity && this.#elements.header.after(this.#elements.missingIdentity);
+    isMismatchedIdentity && this.#elements.header.after(this.#elements.mismatchedIdentity);
 
-    this.selectPotentialIdentities.textContent = '';
+    this.#elements.selectPotentialIdentities.textContent = '';
     for(const potentialIdentityEmail of potentialIdentityEmails) {
       const option = new Option(potentialIdentityEmail, potentialIdentityEmail);
-      this.selectPotentialIdentities.add(option);
+      this.#elements.selectPotentialIdentities.add(option);
     }
 
-    this.selectAccounts.textContent = '';
+    this.#elements.selectAccounts.textContent = '';
     for(const account of accounts) {
-      const current = account.id == this.parameters.composeAccountId;
+      const current = account.id == this.#parameters.composeAccountId;
       const selected = account.id === accountId;
       if(current) {
         translationSubstitutions.currentAccount = account.name;
@@ -146,40 +167,19 @@ export class Popup
       const option = new Option(account.name, account.id, selected, selected);
       option.identities = account.identities;
       option.classList.toggle('current', current);
-      this.selectAccounts.add(option);
+      this.#elements.selectAccounts.add(option);
     }
 
-    this.selectAccounts.dispatchEvent(new Event('change'));
+    this.#elements.selectAccounts.dispatchEvent(new Event('change'));
 
-    this.translator.translate(document, translationSubstitutions);
+    this.#translator.translate(document, translationSubstitutions);
 
-    this.requestResize();
+    this.#requestResize();
 
     window.focus();
   }
 
-  requestResize() {
+  #requestResize() {
     browser.runtime.sendMessage({ action: 'resize-popup-request', height: document.body.scrollHeight });
-  }
-
-  handleMessage(message, sender, sendResponse) {
-    if(sender.tab != null) {
-      return;
-    }
-
-    if('success' in message && !message.success) {
-      alert(this.translator.translate('errorOperationFailed', { errorMessage: message.error.message }));
-      return;
-    }
-
-    switch(message.action) {
-      case 'parameters-response':
-        this.parameters = message.parameters || {};
-        this.redraw();
-        break;
-      case 'create-identity-response':
-        browser.runtime.sendMessage({ action: 'recreate-compose-window-request', identity: message.identity });
-        break;
-    }
   }
 }
