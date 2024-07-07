@@ -12,8 +12,11 @@ export class Options
     showComposeWindowAction: true
   });
 
-  constructor() {
-    this.translator = new Translator();
+  #translator = new Translator();
+  #listeners = {
+    change: (e) => {
+      browser.storage.sync.set({ [e.target.id]: e.target.checked });
+    }
   }
 
   async run() {
@@ -25,18 +28,14 @@ export class Options
       }
     }
 
-    this.messageInstall = document.querySelector('#template-message-install').content.firstElementChild.cloneNode(true);
     if(storedOptions.justInstalled) {
       await browser.storage.sync.set({ justInstalled: false });
-      document.body.prepend(this.messageInstall);
+      const messageInstall = document.querySelector('#template-message-install').content.firstElementChild.cloneNode(true);
+      document.body.prepend(messageInstall);
     }
 
-    const change = (e) => {
-      browser.storage.sync.set({ [e.target.id]: e.target.checked });
-    }
+    document.addEventListener('change', this.#listeners.change);
 
-    document.addEventListener('change', change);
-
-    this.translator.translate(document);
+    this.#translator.translate(document);
   }
 }

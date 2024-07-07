@@ -1,13 +1,17 @@
 export class MailIdentity
 {
+  #email;
+  #name;
+  #label;
+
   static extractDomain(email) {
     return email.split('@')[1];
   }
-  
+
   static fromNativeMailIdentity(nativeMailIdentity) {
     return new MailIdentity(nativeMailIdentity.email, nativeMailIdentity.name || null, nativeMailIdentity.label || null);
   }
-  
+
   static fromString(identifier) {
     let email = null;
     let name = null;
@@ -23,7 +27,7 @@ export class MailIdentity
     if(bracketMatch) {
       email = bracketMatch[1].trim();
       name = identifier.substring(0, bracketMatch.index).trim();
-    } 
+    }
     else {
       const emailMatch = identifier.match(/([^<>\s]+@[^\s>]+)/);
       if(emailMatch) {
@@ -36,24 +40,36 @@ export class MailIdentity
   }
 
   constructor(email, name = null, label = null) {
-    this.email = email;
-    this.name = name;
-    this.label = label;
+    this.#email = email;
+    this.#name = name;
+    this.#label = label;
   }
-  
-  getDomain() {
-    return MailIdentity.extractDomain(this.email);
+
+  get email() {
+    return this.#email;
   }
-  
+
+  get name() {
+    return this.#name;
+  }
+
+  get label() {
+    return this.#label;
+  }
+
+  get domain() {
+    return MailIdentity.extractDomain(this.#email);
+  }
+
   toMailboxName(includeLabel = true) {
-    let mailboxName = this.email;
-    if(this.name != null) {
-      mailboxName = this.name + ' <' + mailboxName + '>';
+    let mailboxName = this.#email;
+    if(this.#name != null) {
+      mailboxName = this.#name + ' <' + mailboxName + '>';
     }
-    if(includeLabel && this.label != null) {
-      mailboxName += ' (' + this.label + ')';
+    if(includeLabel && this.#label != null) {
+      mailboxName += ' (' + this.#label + ')';
     }
-    
+
     return mailboxName;
   }
 }

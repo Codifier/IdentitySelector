@@ -3,6 +3,42 @@ import { IdentityMediator } from './IdentityMediator.js';
 
 export class Background
 {
+  #mediatorMap = {};
+  #listeners = {
+    handleTabCreated: (tab) => {
+      this.#listeners.maybeCreateMediatorForTab(tab);
+    },
+    handleComposeActionClicked: async (tab, clickData) => {
+      this.#listeners.maybeCreateMediatorForTab(tab, { closeComposeWindowOnCancel: false });
+    },
+    maybeCreateMediatorForTab: async (tab, options = {}) => {
+      if(tab.type != 'messageCompose') {
+        return;
+      }
+
+      const storedOptions = await browser.storage.sync.get();
+      const composeDetails = await browser.compose.getComposeDetails(tab.id);
+      switch(composeDetails.type) {
+        case 'new':
+        case 'draft':
+        case 'reply':
+        case 'forward':
+          const optionName = 'showFor' + composeDetails.type.charAt(0).toUpperCase() + composeDetails.type.slice(1);
+          if(!storedOptions[optionName]) {
+            return;
+          }
+          break;
+        default:
+          return;
+      }
+
+      this.#mediatorMap[tab.id] = this.#mediatorMap[tab.id] ?? new IdentityMediator(this, tab);
+      this.#mediatorMap[tab.id]
+        .setOptions(options)
+        .run();
+    }
+  };
+
   constructor() {
     browser.runtime.onInstalled.addListener(async function(details) {
       switch(details.reason) {
@@ -12,11 +48,6 @@ export class Background
           break;
       }
     });
-
-    this.mediatorMap = {};
-
-    this.handleTabCreated = this.handleTabCreated.bind(this);
-    this.handleComposeActionClicked = this.handleComposeActionClicked.bind(this);
   }
 
   async run() {
@@ -24,46 +55,11 @@ export class Background
     const options = { ...Options.DEFAULT_OPTIONS, ...storedOptions };
     browser.storage.sync.set(options);
 
-    browser.tabs.onCreated.addListener(this.handleTabCreated);
-    browser.composeAction.onClicked.addListener(this.handleComposeActionClicked);
-  }
-
-  handleTabCreated(tab) {
-    this.maybeCreateMediatorForTab(tab);
-  }
-
-  async handleComposeActionClicked(tab, clickData) {
-    this.maybeCreateMediatorForTab(tab, { closeComposeWindowOnCancel: false });
-  }
-
-  async maybeCreateMediatorForTab(tab, options = {}) {
-    if(tab.type != 'messageCompose') {
-      return;
-    }
-
-    const storedOptions = await browser.storage.sync.get();
-    const composeDetails = await browser.compose.getComposeDetails(tab.id);
-    switch(composeDetails.type) {
-      case 'new':
-      case 'draft':
-      case 'reply':
-      case 'forward':
-        const optionName = 'showFor' + composeDetails.type.charAt(0).toUpperCase() + composeDetails.type.slice(1);
-        if(!storedOptions[optionName]) {
-          return;
-        }
-        break;
-      default:
-        return;
-    }
-
-    this.mediatorMap[tab.id] = this.mediatorMap[tab.id] ?? new IdentityMediator(this, tab);
-    this.mediatorMap[tab.id]
-      .setOptions(options)
-      .run();
+    browser.tabs.onCreated.addListener(this.#listeners.handleTabCreated);
+    browser.composeAction.onClicked.addListener(this.#listeners.handleComposeActionClicked);
   }
 
   removeMediator(composeTabId) {
-    delete this.mediatorMap[composeTabId];
+    delete this.#mediatorMap[composeTabId];
   }
 }
