@@ -4,12 +4,19 @@ import { IdentityMediator } from './IdentityMediator.js';
 export class Background
 {
   #mediatorMap = {};
+  #composeActionOptions = {
+    closeComposeWindowOnCancel: false,
+    showForNew: true,
+    showForDraft: true,
+    showForReply: true,
+    showForForward: true
+  };
   #listeners = {
     handleTabCreated: (tab) => {
       this.#listeners.maybeCreateMediatorForTab(tab);
     },
     handleComposeActionClicked: async (tab, clickData) => {
-      this.#listeners.maybeCreateMediatorForTab(tab, { closeComposeWindowOnCancel: false });
+      this.#listeners.maybeCreateMediatorForTab(tab, this.#composeActionOptions);
     },
     maybeCreateMediatorForTab: async (tab, options = {}) => {
       if(tab.type != 'messageCompose') {
@@ -18,13 +25,14 @@ export class Background
 
       const storedOptions = await browser.storage.sync.get();
       const composeDetails = await browser.compose.getComposeDetails(tab.id);
+      options = { ...storedOptions, ...options };
       switch(composeDetails.type) {
         case 'new':
         case 'draft':
         case 'reply':
         case 'forward':
           const optionName = 'showFor' + composeDetails.type.charAt(0).toUpperCase() + composeDetails.type.slice(1);
-          if(!storedOptions[optionName]) {
+          if(!options[optionName]) {
             return;
           }
           break;
