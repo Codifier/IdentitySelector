@@ -1,17 +1,24 @@
+import { Options } from './Options.js';
 import { Popup } from './Popup.js';
 import { MailIdentity } from './MailIdentity.js';
 
 export class IdentityMediator
 {
+  static INITIATOR = Object.freeze({
+    BEFORE_COMPOSE: 'BEFORE_COMPOSE',
+    BEFORE_SEND:    'BEFORE_SEND',
+    COMPOSE_ACTION: 'COMPOSE_ACTION'
+  });
+
   #background;
   #options;
+  #initiator = null;
   #composeWindowId = null;
   #composeTabId = null;
   #popupWindowId = null;
   #popupTabId = null;
-  #composeIdentitySet = false;
-  #running = false;
-  #parameters = {};
+  #composeIdentitySetBy = null;
+  #busy = false;
   #listeners = {
     handleMessage: async (message, sender, sendResponse) => {
       if(this.#popupTabId == null || sender.tab.id != this.#popupTabId) {
@@ -29,11 +36,7 @@ export class IdentityMediator
           response.action = 'parameters-response';
           response.parameters = null;
           try {
-            if(message.refresh) {
-              await this.#refresh();
-            }
-
-            response.parameters = this.#parameters;
+            response.parameters = await this.#getParameters();
           }
           catch(error) {
             response.success = false;
@@ -103,7 +106,10 @@ export class IdentityMediator
           response.action = 'set-compose-identity-response';
           try {
             await browser.compose.setComposeDetails(this.#composeTabId, { identityId: message.identityId });
-            this.#composeIdentitySet = true;
+            this.#composeIdentitySetBy = this.#initiator;
+            if(this.#initiator === IdentityMediator.INITIATOR.BEFORE_SEND) {
+              browser.compose.sendMessage(this.#composeTabId);
+            }
           }
           catch(error) {
             response.success = false;
@@ -128,12 +134,13 @@ export class IdentityMediator
         browser.runtime.onMessage.removeListener(this.#listeners.handleMessage);
         browser.composeAction.enable(this.#composeTabId);
 
-        if(this.#composeTabId != null && !this.#composeIdentitySet) {
-          const storedOptions = await browser.storage.sync.get();
-          const options = { ...storedOptions, ...this.#options };
-          if(options.closeComposeWindowOnCancel) {
-            browser.tabs.remove(this.#composeTabId);
-          }
+        if(
+          this.#initiator !== IdentityMediator.INITIATOR.COMPOSE_ACTION &&
+          this.#composeTabId != null &&
+          this.#composeIdentitySetBy == null &&
+          this.#options.closeComposeWindowOnCancel
+        ) {
+          browser.tabs.remove(this.#composeTabId);
         }
       }
     },
@@ -161,20 +168,47 @@ export class IdentityMediator
     return this;
   }
 
-  async run() {
-    if(this.#running || this.#composeTabId == null || this.#popupTabId != null) {
+  maybeOpenPopup(initiator, composeDetails) {
+    if(!this.#canCreatePopup()) {
       return;
     }
 
+    this.#initiator = initiator;
+    const optionName = 'showFor' + composeDetails.type.charAt(0).toUpperCase() + composeDetails.type.slice(1);
+    const option = this.#options[optionName] ?? null;
+    switch(initiator) {
+      case IdentityMediator.INITIATOR.BEFORE_SEND:
+        if((option & Options.SHOW_TYPE.BEFORE_SEND) == 0 || this.#composeIdentitySetBy === IdentityMediator.INITIATOR.BEFORE_SEND) {
+          return false;
+        }
+        break;
+      case IdentityMediator.INITIATOR.BEFORE_COMPOSE:
+        if((option & Options.SHOW_TYPE.BEFORE_COMPOSE) == 0) {
+          return false;
+        }
+        break;
+      case IdentityMediator.INITIATOR.COMPOSE_ACTION:
+      default:
+        // always open popup
+        break;
+    }
+
+    this.#openPopup();
+
+    return true;
+  }
+
+  async #openPopup() {
+    if(!this.#canCreatePopup()) {
+      return;
+    }
+
+    browser.runtime.onMessage.addListener(this.#listeners.handleMessage);
+    browser.tabs.onRemoved.addListener(this.#listeners.handleTabRemoved);
+    browser.windows.onFocusChanged.addListener(this.#listeners.handleWindowFocusChanged);
+
     try {
-      this.#running = true;
-
-      await this.#refresh();
-
-      browser.runtime.onMessage.addListener(this.#listeners.handleMessage);
-      browser.tabs.onRemoved.addListener(this.#listeners.handleTabRemoved);
-      browser.windows.onFocusChanged.addListener(this.#listeners.handleWindowFocusChanged);
-
+      this.#busy = true;
       const composeWindow = await browser.windows.get(this.#composeWindowId);
       const popupInfo = this.#createPopupBounds(composeWindow, Popup.MAX_WIDTH, Popup.MIN_HEIGHT);
       popupInfo.url = browser.runtime.getURL('/html/popup.html');
@@ -188,11 +222,15 @@ export class IdentityMediator
       this.#popupTabId = popupWindow.tabs[0].id;
     }
     finally {
-      this.#running = false;
+      this.#busy = false;
     }
   }
 
-  async #refresh() {
+  #canCreatePopup() {
+    return !(this.#busy || this.#composeTabId == null || this.#popupTabId != null);
+  }
+
+  async #getParameters() {
     const accounts = (await browser.accounts.list()).filter(account => account.type != 'none');
     const composeDetails = await browser.compose.getComposeDetails(this.#composeTabId);
     const composeIdentity = await browser.identities.get(composeDetails.identityId);
@@ -254,7 +292,7 @@ export class IdentityMediator
         break;
     }
 
-    this.#parameters = {
+    return {
       composeType: composeDetails.type,
       composeAccountId: composeAccount.id,
       composeIdentityId: composeIdentity.id,

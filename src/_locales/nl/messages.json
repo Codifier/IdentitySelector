@@ -15,6 +15,12 @@
   "optionsMessageInstallOptions": {
     "message": "Hieronder vind je de beschikbare voorkeuren."
   },
+  "optionsMessageUpdateThankYou": {
+    "message": "Bedankt voor het updaten van Identiteitsselector!"
+  },
+  "optionsMessageUpdateOptions": {
+    "message": "Hieronder vind je de beschikbare uitgebreide voorkeuren."
+  },
   "optionsHeadingTitle": {
     "message": "Identiteitsselector voorkeuren"
   },
@@ -32,6 +38,18 @@
   },
   "optionsShowForDraft": {
     "message": "Conceptberichten openen"
+  },
+  "optionsShowBeforeComposing": {
+    "message": "Vóór opstellen"
+  },
+  "optionsShowBeforeSending": {
+    "message": "Vóór verzenden"
+  },
+  "optionsShowBoth": {
+    "message": "Beide"
+  },
+  "optionsShowNever": {
+    "message": "Nooit"
   },
 
   "optionsGeneral": {

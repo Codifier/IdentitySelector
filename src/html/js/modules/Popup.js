@@ -36,67 +36,33 @@ export class Popup
           break;
       }
     },
-    keyDown: async (e) => {
+    handleKeyDown: (e) => {
       switch(e.key) {
         case 'p':
-          openOptions();
+          this.#openOptionsPage();
           break;
         case 'Escape':
-          cancel();
+          this.#close();
           break;
         case 'Enter':
-          selectIdentity();
+          this.#selectIdentity();
           break;
       }
     },
-    openOptions: (e) => {
-      browser.runtime.openOptionsPage();
+    handleOptionsClick: (e) => {
+      this.#openOptionsPage();
     },
-    cancel: (e) => {
-      window.close();
+    handleSelectPotentialIdentity: (e) => {
+      this.#selectPotentialIdentity();
     },
-    selectIdentity: async (e) => {
-      try {
-        await browser.runtime.sendMessage({ action: 'set-compose-identity-request', identityId: this.#elements.selectIdentities.value });
-        window.close();
-      }
-      catch(error) {
-        alert(this.#translator.translate('errorSetComposeIdentity', { errorMessage: error.message }));
-      }
+    handleSelectAccount: (e) => {
+      this.#selectAccount();
     },
-    selectAccount: (e) => {
-      const optionAccount = this.#elements.selectAccounts.selectedOptions[0] ?? null;
-      if(optionAccount != null) {
-        const accountId = this.#parameters.originalAccountId || this.#parameters.composeAccountId;
-        const identityId = this.#parameters.originalIdentityId || this.#parameters.composeIdentityId;
-        this.#elements.selectIdentities.textContent = '';
-        for(const identity of optionAccount.identities) {
-          const selected = (optionAccount.value != accountId && identity === optionAccount.identities[0]) || identity.id === identityId;
-          const mailboxName = MailIdentity.fromNativeMailIdentity(identity).toMailboxName();
-          const option = new Option(mailboxName, identity.id, selected, selected);
-          this.#elements.selectIdentities.add(option);
-        }
-
-        this.#requestResize();
-      }
+    handleCancelClick: (e) => {
+      this.#close();
     },
-    selectPotentialIdentity: async (e) => {
-      const optionPotentialIdentity = this.#elements.selectPotentialIdentities.selectedOptions[0] ?? null;
-      const optionAccount = this.#elements.selectAccounts.selectedOptions[0] ?? null;
-      if(optionPotentialIdentity != null && optionAccount != null) {
-        if(!confirm(this.#translator.translate('confirmCreateIdentity', { identityEmail: optionPotentialIdentity.label, accountName: optionAccount.label }))) {
-          this.#elements.selectPotentialIdentities.selectedIndex = -1;
-          this.#elements.selectPotentialIdentities.blur();
-        }
-        else {
-          try {
-            await browser.runtime.sendMessage({ action: 'create-identity-request', accountId: optionAccount.value, identityEmail: optionPotentialIdentity.label });
-          }
-          catch(error) {
-            alert(this.#translator.translate('errorCreateIdentity', { errorMessage: error.message }));
-          }
-        }
-      }
+    handleSelectClick: (e) => {
+      this.#selectIdentity();
     }
   };
 
@@ -107,6 +73,60 @@ export class Popup
     browser.runtime.sendMessage({ action: 'parameters-request' });
 
     this.#translator.translate(document);
+  }
+
+  #openOptionsPage() {
+    browser.runtime.openOptionsPage();
+  }
+
+  #close() {
+    window.close();
+  }
+
+  async #selectPotentialIdentity() {
+    const optionPotentialIdentity = this.#elements.selectPotentialIdentities.selectedOptions[0] ?? null;
+    const optionAccount = this.#elements.selectAccounts.selectedOptions[0] ?? null;
+    if(optionPotentialIdentity != null && optionAccount != null) {
+      if(!confirm(this.#translator.translate('confirmCreateIdentity', { identityEmail: optionPotentialIdentity.label, accountName: optionAccount.label }))) {
+        this.#elements.selectPotentialIdentities.selectedIndex = -1;
+        this.#elements.selectPotentialIdentities.blur();
+      }
+      else {
+        try {
+          await browser.runtime.sendMessage({ action: 'create-identity-request', accountId: optionAccount.value, identityEmail: optionPotentialIdentity.label });
+        }
+        catch(error) {
+          alert(this.#translator.translate('errorCreateIdentity', { errorMessage: error.message }));
+        }
+      }
+    }
+  }
+
+  #selectAccount() {
+    const optionAccount = this.#elements.selectAccounts.selectedOptions[0] ?? null;
+    if(optionAccount != null) {
+      const accountId = this.#parameters.originalAccountId || this.#parameters.composeAccountId;
+      const identityId = this.#parameters.originalIdentityId || this.#parameters.composeIdentityId;
+      this.#elements.selectIdentities.textContent = '';
+      for(const identity of optionAccount.identities) {
+        const selected = (optionAccount.value != accountId && identity === optionAccount.identities[0]) || identity.id === identityId;
+        const mailboxName = MailIdentity.fromNativeMailIdentity(identity).toMailboxName();
+        const option = new Option(mailboxName, identity.id, selected, selected);
+        this.#elements.selectIdentities.add(option);
+      }
+
+      this.#requestResize();
+    }
+  }
+
+  async #selectIdentity() {
+    try {
+      await browser.runtime.sendMessage({ action: 'set-compose-identity-request', identityId: this.#elements.selectIdentities.value });
+      this.#close();
+    }
+    catch(error) {
+      alert(this.#translator.translate('errorSetComposeIdentity', { errorMessage: error.message }));
+    }
   }
 
   #initializeElements() {
@@ -122,13 +142,13 @@ export class Popup
   }
 
   #initializeListeners() {
-    window.addEventListener('keydown', this.#listeners.keyDown);
+    window.addEventListener('keydown', this.#listeners.handleKeyDown);
 
-    this.#elements.buttonOptions.addEventListener('click', this.#listeners.openOptions);
-    this.#elements.selectPotentialIdentities.addEventListener('click', this.#listeners.selectPotentialIdentity);
-    this.#elements.selectAccounts.addEventListener('change', this.#listeners.selectAccount);
-    this.#elements.buttonCancel.addEventListener('click', this.#listeners.cancel);
-    this.#elements.buttonSelect.addEventListener('click', this.#listeners.selectIdentity);
+    this.#elements.buttonOptions.addEventListener('click', this.#listeners.handleOptionsClick);
+    this.#elements.selectPotentialIdentities.addEventListener('click', this.#listeners.handleSelectPotentialIdentity);
+    this.#elements.selectAccounts.addEventListener('change', this.#listeners.handleSelectAccount);
+    this.#elements.buttonCancel.addEventListener('click', this.#listeners.handleCancelClick);
+    this.#elements.buttonSelect.addEventListener('click', this.#listeners.handleSelectClick);
 
     browser.runtime.onMessage.addListener(this.#listeners.handleMessage);
   }

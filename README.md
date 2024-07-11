@@ -1,5 +1,5 @@
 <h1 align="center"><sub><img src="src/html/img/icon.svg" width="34" height="34"></sub> Identity Selector</h1>
-<p align="center"><sub>Select the correct identity before composing a message.</sub></p>
+<p align="center"><sub>Select the correct identity before composing/sending a message.</sub></p>
 
 ---
 
@@ -11,7 +11,7 @@
 
 ---
 
-Identity Selector is an add-on for Thunderbird that prompts you to select the correct identity before composing a message.
+Identity Selector is an add-on for Thunderbird that prompts you to select the correct identity before composing/sending a message.
 
 The available identities in the prompt window are neatly organized by account. The prompt window can be enabled/disabled for new, reply, forward, and draft messages.
 
