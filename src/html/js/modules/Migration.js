@@ -118,27 +118,14 @@ class Migration
   }
 }
 
-const migrations = [
-  new Migration(
-    '0.4.0',
-    async function() {
-      const storedOptions = await browser.storage.sync.get();
-      // convert booleans to integers: 0 = never, 1 = before compose, 2 = before send
-      storedOptions.showForReply   = +storedOptions.showForReply;
-      storedOptions.showForForward = +storedOptions.showForForward;
-      storedOptions.showForNew     = +storedOptions.showForNew;
-      storedOptions.showForDraft   = +storedOptions.showForDraft;
-
-      return browser.storage.sync.set(storedOptions);
-    },
-    function() {
-      // NO-OP
-    }
-  )
-].sort((a, b) => a.minVersion.compareTo(b.minVersion));
-
-export class Migrator
+class Migrator
 {
+  #migrations = [];
+
+  constructor(migrations = []) {
+    this.#migrations = migrations.sort((a, b) => a.minVersion.compareTo(b.minVersion));
+  }
+
   async migrate(from, to) {
     let openOptionsPage = false;
     from = Version.fromAny(from).toCanonical();
@@ -149,7 +136,7 @@ export class Migrator
     }
     else if(comparison > 0) {  // upgrade
       let previousVersion = from;
-      for(const migration of migrations) {
+      for(const migration of this.#migrations) {
         if(to >= migration.minVersion && previousVersion <= migration.minVersion) {
           await migration.upgrade();
           openOptionsPage = openOptionsPage || migration.openOptionsPage;
@@ -161,3 +148,5 @@ export class Migrator
     return openOptionsPage;
   }
 }
+
+export { Version, Migration, Migrator };

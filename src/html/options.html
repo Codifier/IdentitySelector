@@ -13,18 +13,53 @@
       </x-message-install>
     </template>
 
+    <template id="template-message-update">
+      <x-message-install>
+        <h1 data-i18n="optionsMessageUpdateThankYou">Thank you for updating Identity Selector!</h1>
+        <p data-i18n="optionsMessageUpdateOptions">Below you will find the updated available preferences.</p>
+      </x-message-install>
+    </template>
+
   </head>
   <body>
-    <fieldset>
-      <legend data-i18n="optionsShowWhen">Show Identity Selector when:</legend>
-      <label><input type="checkbox" id="showForReply"><span data-i18n="optionsShowForReply">replying to messages</span></label>
-      <label><input type="checkbox" id="showForForward"><span data-i18n="optionsShowForForward">forwarding messages</span></label>
-      <label><input type="checkbox" id="showForNew"><span data-i18n="optionsShowForNew">creating new messages</span></label>
-      <label><input type="checkbox" id="showForDraft"><span data-i18n="optionsShowForDraft">opening draft messages</span></label>
-    </fieldset>
-    <fieldset>
-      <legend data-i18n="optionsGeneral">General preferences</legend>
-      <label><input type="checkbox" id="closeComposeWindowOnCancel"><span data-i18n="optionsComposeWindowOnCancel">Close message window on cancel</span></label>
-    </fieldset>
+    <form name="options">
+      <fieldset>
+        <legend data-i18n="optionsShowWhen">Show Identity Selector when:</legend>
+        <table>
+          <tr>
+            <td><span data-i18n="optionsShowForReply">replying to messages</span></td>
+            <td><label><input type="radio" name="showForReply" value="1"><span data-i18n="optionsShowBeforeComposing">Before composing</span></label></td>
+            <td><label><input type="radio" name="showForReply" value="2"><span data-i18n="optionsShowBeforeSending">Before sending</span></label></td>
+            <td><label><input type="radio" name="showForReply" value="3"><span data-i18n="optionsShowBoth">Both</span></label></td>
+            <td><label><input type="radio" name="showForReply" value="0"><span data-i18n="optionsShowNever">Never</span></label></td>
+          </tr>
+          <tr>
+            <td><span data-i18n="optionsShowForForward">forwarding messages</span></td>
+            <td><label><input type="radio" name="showForForward" value="1"><span data-i18n="optionsShowBeforeComposing">Before composing</span></label></td>
+            <td><label><input type="radio" name="showForForward" value="2"><span data-i18n="optionsShowBeforeSending">Before sending</span></label></td>
+            <td><label><input type="radio" name="showForForward" value="3"><span data-i18n="optionsShowBoth">Both</span></label></td>
+            <td><label><input type="radio" name="showForForward" value="0"><span data-i18n="optionsShowNever">Never</span></label></td>
+          </tr>
+          <tr>
+            <td><span data-i18n="optionsShowForNew">creating new messages</span></td>
+            <td><label><input type="radio" name="showForNew" value="1"><span data-i18n="optionsShowBeforeComposing">Before composing</span></label></td>
+            <td><label><input type="radio" name="showForNew" value="2"><span data-i18n="optionsShowBeforeSending">Before sending</span></label></td>
+            <td><label><input type="radio" name="showForNew" value="3"><span data-i18n="optionsShowBoth">Both</span></label></td>
+            <td><label><input type="radio" name="showForNew" value="0"><span data-i18n="optionsShowNever">Never</span></label></td>
+          </tr>
+          <tr>
+            <td><span data-i18n="optionsShowForDraft">opening draft messages</span></td>
+            <td><label><input type="radio" name="showForDraft" value="1"><span data-i18n="optionsShowBeforeComposing">Before composing</span></label></td>
+            <td><label><input type="radio" name="showForDraft" value="2"><span data-i18n="optionsShowBeforeSending">Before sending</span></label></td>
+            <td><label><input type="radio" name="showForDraft" value="3"><span data-i18n="optionsShowBoth">Both</span></label></td>
+            <td><label><input type="radio" name="showForDraft" value="0"><span data-i18n="optionsShowNever">Never</span></label></td>
+          </tr>
+        </table>
+      </fieldset>
+      <fieldset>
+        <legend data-i18n="optionsGeneral">General preferences</legend>
+        <label><input type="checkbox" name="closeComposeWindowOnCancel"><span data-i18n="optionsComposeWindowOnCancel">Close message window on cancel</span></label>
+      </fieldset>
+    </form>
   </body>
 </html>

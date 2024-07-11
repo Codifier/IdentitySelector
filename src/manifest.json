@@ -15,6 +15,7 @@
     "accountsIdentities",
     "messagesRead",
     "compose",
+    "compose.send",
     "storage"
   ],
   "background": {

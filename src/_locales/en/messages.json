@@ -3,7 +3,7 @@
     "message": "Identity Selector"
   },
   "extensionDescription": {
-    "message": "Always select the right identity with Identity Selector!"
+    "message": "Always select the correct identity with Identity Selector!"
   },
 
   "optionsTitle": {
@@ -14,6 +14,12 @@
   },
   "optionsMessageInstallOptions": {
     "message": "Below you will find the available preferences."
+  },
+  "optionsMessageUpdateThankYou": {
+    "message": "Thank you for updating Identity Selector!"
+  },
+  "optionsMessageUpdateOptions": {
+    "message": "Below you will find the available updated preferences."
   },
   "optionsHeadingTitle": {
     "message": "Identity Selector preferences"
@@ -32,6 +38,18 @@
   },
   "optionsShowForDraft": {
     "message": "Opening draft messages"
+  },
+  "optionsShowBeforeComposing": {
+    "message": "Before composing"
+  },
+  "optionsShowBeforeSending": {
+    "message": "Before sending"
+  },
+  "optionsShowBoth": {
+    "message": "Both"
+  },
+  "optionsShowNever": {
+    "message": "Never"
   },
 
   "optionsGeneral": {
