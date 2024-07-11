@@ -1,3 +1,12 @@
+# 0.4.0
+
+## Fixed/changed
+
+- [Added option to (also) show popup just before sending, instead of just before composing, a message](https://github.com/Codifier/IdentitySelector/commit/06d8d06)
+- [Added Migrator.js](https://github.com/Codifier/IdentitySelector/commit/c50791f)
+
+----
+
 # 0.3.1
 
 ## Fixed/changed
